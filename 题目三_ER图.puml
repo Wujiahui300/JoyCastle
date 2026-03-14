@@ -1,0 +1,51 @@
+@startuml
+skinparam defaultFontName Helvetica
+skinparam backgroundColor white
+skinparam class {
+  BackgroundColor #F5F5F5
+  BorderColor #333333
+}
+hide circle
+
+title 国际象棋比赛数据模型
+
+class "Clubs 俱乐部" as clubs {
+  club_id <<PK>>
+  name
+  address
+}
+
+class "Players 棋手" as players {
+  player_id <<PK>>
+  name
+  ranking
+}
+
+class "Sponsors 赞助方" as sponsors {
+  sponsor_id <<PK>>
+  name
+  type
+}
+
+class "Tournaments 锦标赛" as tournaments {
+  tournament_code <<PK>>
+  name
+  start_date
+  end_date
+}
+
+class "Matches 比赛" as matches {
+  match_id <<PK>>
+  match_date
+  result
+}
+
+clubs "1" -- "N" tournaments : 主办
+clubs "1" -- "N" players : 会员
+sponsors "0..N" -- "0..N" tournaments : 赞助
+players "0..N" -- "0..N" tournaments : 参赛
+tournaments "1" -- "0..N" matches : 包含
+players "1" -- "0..N" matches : player1
+players "1" -- "0..N" matches : player2
+
+@enduml
