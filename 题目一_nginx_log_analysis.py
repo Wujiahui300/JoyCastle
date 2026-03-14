@@ -18,7 +18,7 @@ LOG_PATTERN = re.compile(
 )
 
 
-def parse_log_line(line: str) -> dict | None:
+def parse_log_line(line: str):
     """解析单行 Nginx 日志"""
     match = LOG_PATTERN.match(line.strip())
     if not match:
@@ -26,16 +26,10 @@ def parse_log_line(line: str) -> dict | None:
     return match.groupdict()
 
 
-def count_https_domain1_requests(log_file_path: str) -> int:
-    """
-    统计 HTTPS 请求中以 domain1.com 为域名的数量
-    
-    根据 Nginx combined 格式，referer 为第4个引号对内的内容：
-    $remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"
-    """
+def count_https_domain1_requests(log_file_path: str):
+    ## 统计 HTTPS 请求中以 domain1.com 为域名的数量
     count = 0
-    # 格式: ... "request" status size "referer" "user_agent" ...
-    # 用正则匹配 status size 后的第一个引号对即为 referer
+
     referer_pattern = re.compile(r'\d+\s+\S+\s+"([^"]*)"')
     
     with open(log_file_path, 'r', encoding='utf-8', errors='ignore') as f:
@@ -53,17 +47,15 @@ def count_https_domain1_requests(log_file_path: str) -> int:
     return count
 
 
-def success_ratio_by_date(log_file_path: str, date: str) -> float:
+def success_ratio_by_date(log_file_path: str, date: str):
     """
-    给定日期 date (格式: YYYY-MM-DD 或 DD/Mon/YYYY)，计算当日 UTC 时间所有请求中成功的比例
-    
-    HTTP 成功状态码：2xx (200-299)
+    给定日期 date ，计算当日 UTC 时间所有请求中成功的比例   
+    HTTP 成功状态码在200-299之间
     """
     total = 0
     success = 0
     target_date = None
     
-    # 支持多种日期格式
     for fmt in ['%Y-%m-%d', '%d/%b/%Y']:
         try:
             target_date = datetime.strptime(date, fmt).date()
@@ -106,7 +98,7 @@ def main():
     count = count_https_domain1_requests(log_file)
     print(f"1. HTTPS 请求中以 domain1.com 为域名的数量: {count}")
     ratio = success_ratio_by_date(log_file, date_arg)
-    print(f"2. {date_arg} 当日请求成功比例 (2xx): {ratio:.2%}")
+    print(f"2. {date_arg} 当日请求成功比例: {ratio:.2%}")
 
 
 if __name__ == '__main__':
